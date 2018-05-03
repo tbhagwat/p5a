@@ -172,6 +172,16 @@ main(int argc, char *argv[])
 					int x;
 					blockAddr = dip->addrs[k];
 					// Make sure address is valid
+                            if (k==NDIRECT){
+                                   if (blockAddr != 0) {
+						if (blockAddr != 0) {
+			            	// Check 2: bad address in inode
+				            if((blockAddr) < ((int)BBLOCK(sb->nblocks, sb->ninodes))+1 || blockAddr > (sb->size * BSIZE)){
+				                fprintf(stderr, "ERROR: bad indirect address in inode.\n");
+				                exit(1);
+				            }
+                                   }
+                            }}
 		            if (blockAddr != 0) {
 						if (blockAddr != 0) {
 			            	// Check 2: bad address in inode
@@ -181,7 +191,7 @@ main(int argc, char *argv[])
 				            }
 							// Check 8: check used blocks are only used once
 							if(usedBlocks[blockAddr] == 1){
-								fprintf(stderr, "ERROR: address used more than once.\n");
+								fprintf(stderr, "ERROR: direct address used more than once.\n");
 								exit(1);
 							}
 						}
@@ -235,12 +245,12 @@ main(int argc, char *argv[])
 		                if (block != 0) {
 			            	// Check 2: bad address in inode
 			                if (block < ((int)BBLOCK(sb->nblocks, sb->ninodes))+1) {
-			                    fprintf(stderr, "ERROR: bad address in inode.\n");
+			                    fprintf(stderr, "ERROR: bad indirect address in inode.\n");
 			                    exit(1);
 			                }
 							// Check 8: check used blocks are only used once
 			                if (usedBlocks[block] == 1) {
-			                    fprintf(stderr, "ERROR: address used more than once.\n");
+			                    fprintf(stderr, "ERROR: indirect address used more than once.\n");
 			                    exit(1);
 			                }
 		                    usedBlocks[block] = 1;
@@ -300,7 +310,7 @@ main(int argc, char *argv[])
         }
 		// Check 11: hard links to file match files reference count
         if (numLinks[i] != dip->nlink) {
-            fprintf(stderr, "ERROR: directory appears more than once in file system.\n");
+            fprintf(stderr, "ERROR: bad reference count for file.\n");
             exit(1);
         }
 		dip++;
